@@ -1,68 +1,223 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# GraphQL Subscriptions
 
-## Available Scripts
+## Create Onegraph App
 
-In the project directory, you can run:
+Navigate to [one graph](https://www.onegraph.com/) and create an account.
 
-### `yarn start`
+Create a new app ([screenshot](https://share.getcloudapp.com/qGudxW8p)).
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Click the data explorer tab.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Paste in this query:
 
-### `yarn test`
+```js
+query {
+  npm {
+    package(name: "graphql") {
+      name
+      id
+      homepage
+    }
+  }
+}
+```
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+When we run this query, we should get this data back:
 
-### `yarn build`
+```js
+{
+  "data": {
+    "npm": {
+      "package": {
+        "name": "graphql",
+        "id": "graphql",
+        "homepage": "https://github.com/graphql/graphql-js"
+      }
+    }
+  }
+}
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Create Urql Client
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Add urql to your project. urql requires you to add graphql as a dependency
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+`yarn add urql graphql` or `npm install urql graphql`
 
-### `yarn eject`
+Next go to `src/index.js` and remove the service worker import, we wont be using it.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Import `createClient` and `Provider` from urql:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```js
+// src/index.js
+import {createClient, Provider} from 'urql'
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Now we need to call `createClient`, passing in our graphql endpoint. We'll define out endpoint as `const CLIENT_URL`. We will use the one graph endpoint that we created earlier.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Log in to One Graph, scroll down to "App information" section and copy the the graphql endpoint.
 
-## Learn More
+```js
+// src/index.js
+const CLIENT_URL =
+  'https://serve.onegraph.com/graphql?app_id=4fe6c187-0c9f-4f86-bc1b-c2c40acbd78c'
+const client = createClient({
+  url: CLIENT_URL,
+})
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Now we need to wrap our app with the urql provider and pass our client as the value:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```js
+// src/index.js
 
-### Code Splitting
+ReactDOM.render(
+  <React.StrictMode>
+    <Provider value={client}>
+      <App />
+    </Provider>
+  </React.StrictMode>,
+  document.getElementById('root'),
+)
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+Now lets go over to `src/App.js` and `import {useQuery} from 'urql'`
 
-### Analyzing the Bundle Size
+Lets define a simple query to make sure urql is working:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+```js
+const NPM_QUERY = `
+query {
+  npm {
+    package(name: "graphql") {
+      name
+      id
+      homepage
+    }
+  }
+}
+`
+```
 
-### Making a Progressive Web App
+Now we will will call `useQuery` inside of our component. `useQuery` takes a configuration object that expects `query` as a parameter. We'll pass `NPM_QUERY` in.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+```js
+function App() {
+  const [res, reExecute] = useQuery({query: NPM_QUERY})
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
+  )
+}
+```
 
-### Advanced Configuration
+`useQuery` returns an array. The result of the query is in the first slot of the array while a function to re-execute the query is in the second slot.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+Lets `console.log({res})` to take a look at the result of our query.
 
-### Deployment
+The result object will look like this:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+```js
+{
+  data, error, extensions, fetching, state
+}
+```
 
-### `yarn build` fails to minify
+You'll see a couple log statements where `fetching: true` and then when the query resolves:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+```js
+{
+  "res": {
+    "fetching": false,
+    "stale": false,
+    "data": {
+      "npm": {
+        "package": {
+          "name": "graphql",
+          "id": "graphql",
+          "homepage": "https://github.com/graphql/graphql-js",
+          "__typename": "NpmPackage"
+        },
+        "__typename": "NpmQuery"
+      }
+    }
+  }
+}
+```
+
+## Get data from authenticated endpoint in one graph
+
+Click the data explorer tab. Log into github ([screenshot](https://share.getcloudapp.com/QwuKdmqY)).
+
+We will be using the github api, so you will have to log into github from one graph.
+
+```js
+query CommentListQuery(
+  $repoOwner: String!
+  $repoName: String!
+  $issueNumber: Int!){
+  gitHub {
+    repository(name: $repoName, owner: $repoOwner) {
+      issue(number: $issueNumber) {
+        id
+        bodyText
+        comments(last: 100) {
+          nodes {
+              author {
+                login
+              }
+              body
+              id
+              url
+              viewerDidAuthor
+            }
+        }
+      }
+    }
+  }
+}
+```
+
+You will need to add these `queryVariables` to the query variables section on one graph.
+
+```js
+{
+  "repoOwner": "theianjones",
+  "repoName":"egghead-graphql-subscriptions",
+  "issueNumber": 1
+}
+```
+
+Now you should see data!
+
+```js
+{
+  "data": {
+    "gitHub": {
+      "repository": {
+        "issue": {
+          "id": "MDU6SXNzdWU2MTQ3NzU4NDY=",
+          "bodyText": "Discuss graphql!",
+          "comments": {
+            "nodes": []
+          }
+        }
+      }
+    }
+  }
+}
+```

@@ -1,8 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import logo from './logo.svg'
+import './App.css'
+import {useQuery} from 'urql'
+
+const NPM_QUERY = `
+query {
+  npm {
+    package(name: "graphql") {
+      name
+      id
+      homepage
+    }
+  }
+}
+`
 
 function App() {
+  const [res, reExecute] = useQuery({query: NPM_QUERY})
+
+  console.log({res})
   return (
     <div className="App">
       <header className="App-header">
@@ -20,7 +36,7 @@ function App() {
         </a>
       </header>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
