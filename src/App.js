@@ -2,23 +2,20 @@ import React from 'react'
 import logo from './logo.svg'
 import './App.css'
 import {useQuery} from 'urql'
-
-const NPM_QUERY = `
-query {
-  npm {
-    package(name: "graphql") {
-      name
-      id
-      homepage
-    }
-  }
-}
-`
+import {AuthContext} from './contexts/AuthContext'
 
 function App() {
-  const [res, reExecute] = useQuery({query: NPM_QUERY})
+  const {login, status} = React.useContext(AuthContext)
+  if (!status.github) {
+    return (
+      <div>
+        <h1>Login with Github</h1>
+        <p>In order to see your profile, you'll have to login with Github.</p>
+        <button onClick={() => login('github')}>Login with Github</button>
+      </div>
+    )
+  }
 
-  console.log({res})
   return (
     <div className="App">
       <header className="App-header">

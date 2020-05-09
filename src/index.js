@@ -3,17 +3,20 @@ import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
 import {createClient, Provider} from 'urql'
+import {AuthProvider} from './contexts/AuthContext'
+import {auth, CLIENT_URL} from './utils/auth'
 
-const CLIENT_URL =
-  'https://serve.onegraph.com/graphql?app_id=4fe6c187-0c9f-4f86-bc1b-c2c40acbd78c'
 const client = createClient({
   url: CLIENT_URL,
 })
+
 ReactDOM.render(
   <React.StrictMode>
-    <Provider value={client}>
-      <App />
-    </Provider>
+    <AuthProvider auth={auth}>
+      <Provider value={client}>
+        <App />
+      </Provider>
+    </AuthProvider>
   </React.StrictMode>,
   document.getElementById('root'),
 )
