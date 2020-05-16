@@ -13,6 +13,7 @@ query CommentListQuery(
     repository(name: $repoName, owner: $repoOwner) {
       issue(number: $issueNumber) {
         id
+        title
         bodyText
         comments(last: 100) {
           nodes {

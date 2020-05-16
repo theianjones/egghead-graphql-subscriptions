@@ -11,6 +11,7 @@ query CommentListQuery(
       issue(number: $issueNumber) {
         id
         bodyText
+        title
         comments(last: 100) {
           nodes {
               author {
@@ -37,6 +38,32 @@ export default function Comments() {
     },
   })
 
-  console.log({result})
-  return <div></div>
+  if (result.fetching) {
+    return 'Loading...'
+  } else if (result.error) {
+    return `There was an error: ${result.error}`
+  }
+  const issue = result.data.gitHub.repository.issue
+  const comments = issue.comments.nodes
+  return (
+    <div style={{paddingTop: 30}}>
+      <h1>{issue.title}</h1>
+      {comments.length === 0 ? (
+        <p>There are no comments yet.</p>
+      ) : (
+        <ul style={{listStyle: 'none', padding: 0}}>
+          {comments.map((comment) => {
+            return (
+              <li key={comment.id}>
+                <strong style={{paddingRight: 10}}>
+                  {comment.author.login}:
+                </strong>
+                <span>{comment.body}</span>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
+  )
 }
