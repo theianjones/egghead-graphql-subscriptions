@@ -8,6 +8,11 @@ import {auth, CLIENT_URL} from './utils/auth'
 
 const client = createClient({
   url: CLIENT_URL,
+  fetchOptions: () => {
+    return {
+      headers: {...auth.authHeaders()},
+    }
+  },
 })
 
 ReactDOM.render(

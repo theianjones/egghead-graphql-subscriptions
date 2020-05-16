@@ -255,12 +255,8 @@ if (!status.github) {
 }
 ```
 
-Now you can navigate to `http://localhost:3000` and login with an oauth github flow!
+Now you can navigate to `http://localhost:3000` and login with an oauth github flow! If you open up your developer tools, head over to the Applications tab, click `Local Storage -> http://localhost:3000/`. You will see the key that one graph generated for us to authenticate our requests with.
 
 ## Resources
 
 - https://github.com/OneGraph/onegraph-client/blob/master/packages/react-onegraph/src/index.js
-
-```
-
-```
