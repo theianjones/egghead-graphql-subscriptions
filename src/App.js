@@ -2,7 +2,7 @@ import React from 'react'
 import './App.css'
 import {AuthContext} from './contexts/AuthContext'
 import Comments from './components/Comments'
-
+import Input from './components/Input'
 function App() {
   const {login, status} = React.useContext(AuthContext)
   if (!status.github) {
@@ -17,7 +17,10 @@ function App() {
 
   return (
     <div style={{display: 'flex', justifyContent: 'center'}}>
-      <Comments />
+      <div>
+        <Comments />
+        <Input />
+      </div>
     </div>
   )
 }
