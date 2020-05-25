@@ -415,6 +415,8 @@ const [commentSubscriptionResult] = useSubscription(
 )
 ```
 
+Now when you add a comment, you'll see our app break. Our subscription result is now returning an array! Now we can pass `commentSubscriptionResult.data` directly to our `Comments` component.
+
 ## Resources
 
 - [urql subscriptions](https://formidable.com/open-source/urql/docs/advanced/subscriptions/ "documentation")
