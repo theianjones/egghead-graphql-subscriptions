@@ -8,3 +8,4 @@
 - Lesson 05.a - Send an Authenticated Request with Urql
 - Lesson 05.b - Create a UI for Comments
 - Lesson 06 - Create a Comment on a Github Issue
+- Lesson 07 - Urql's useSubscription
