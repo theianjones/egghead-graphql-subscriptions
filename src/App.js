@@ -1,7 +1,7 @@
 import React from 'react'
 import './App.css'
 import {AuthContext} from './contexts/AuthContext'
-import Comments from './components/Comments'
+import Comments from './components/CommentsSubscription'
 import Input from './components/Input'
 function App() {
   const {login, status} = React.useContext(AuthContext)

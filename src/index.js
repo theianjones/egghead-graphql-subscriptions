@@ -2,9 +2,19 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
-import {createClient, Provider} from 'urql'
+import {
+  createClient,
+  Provider,
+  defaultExchanges,
+  subscriptionExchange,
+} from 'urql'
+import {SubscriptionClient} from 'onegraph-subscription-client'
 import {AuthProvider} from './contexts/AuthContext'
-import {auth, CLIENT_URL} from './utils/auth'
+import {auth, CLIENT_URL, APP_ID} from './utils/auth'
+
+const subscriptionClient = new SubscriptionClient(APP_ID, {
+  oneGraphAuth: auth,
+})
 
 const client = createClient({
   url: CLIENT_URL,
@@ -13,6 +23,12 @@ const client = createClient({
       headers: {...auth.authHeaders()},
     }
   },
+  exchanges: [
+    ...defaultExchanges,
+    subscriptionExchange({
+      forwardSubscription: (operation) => subscriptionClient.request(operation),
+    }),
+  ],
 })
 
 ReactDOM.render(
