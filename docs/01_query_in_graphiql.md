@@ -1,6 +1,6 @@
-# Query Data in One-graph Graphiql Editor
+# Query Data in OneGraph Graphiql Editor
 
-Navigate to [one graph](https://www.onegraph.com/) and create an account.
+Navigate to [OneGraph](https://www.onegraph.com/) and create an account.
 
 Create a new app ([screenshot](https://share.getcloudapp.com/qGudxW8p)).
 
