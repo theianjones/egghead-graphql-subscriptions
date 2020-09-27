@@ -5,7 +5,7 @@ import Comments from './components/CommentsSubscription'
 import Input from './components/Input'
 function App() {
   const {login, status} = React.useContext(AuthContext)
-  if (!status.github) {
+  if (!status || !status.github) {
     return (
       <div>
         <h1>Login with Github</h1>
