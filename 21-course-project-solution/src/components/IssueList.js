@@ -7,7 +7,7 @@ const ISSUE_LIST = `
     gitHub {
       repository(owner: $owner, name: $name) {
         id
-        issues(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
+        issues(first: 10, orderBy: {field: UPDATED_AT, direction: DESC}) {
           edges {
             cursor
             node {
@@ -52,7 +52,7 @@ const useHover = (styles) => {
   return [hoverStyle, {onMouseEnter, onMouseLeave}]
 }
 
-const IssueListItem = ({issue}) => {
+const IssueListItem = ({issue, onClick}) => {
   const [hoverStyle, hoverProps] = useHover({
     background: 'rgb(67, 67, 67)',
     cursor: 'pointer',
@@ -68,36 +68,39 @@ const IssueListItem = ({issue}) => {
         textAlign: 'justify',
         ...hoverStyle,
       }}
+      onClick={() => onClick(issue)}
     >
       <h3 style={{marginBottom: 0, marginTop: 10, fontSize: 24}}>
         {issue.title}
       </h3>
-      <p
-        style={{
-          marginTop: 5,
-          marginBottom: 10,
-          fontSize: 16,
-          fontWeight: 400,
-          opacity: 0.8,
-          color: 'rgb(102, 102, 106)',
-        }}
-      >
-        {issue.comments.nodes[0].bodyText}
-      </p>
+      {issue.comments.nodes.length > 0 && (
+        <p
+          style={{
+            marginTop: 5,
+            marginBottom: 10,
+            fontSize: 16,
+            fontWeight: 400,
+            opacity: 0.8,
+            color: 'rgb(102, 102, 106)',
+          }}
+        >
+          {issue.comments.nodes[0].bodyText}
+        </p>
+      )}
       <hr />
     </li>
   )
 }
 
 const IssueList = (props) => {
-  const {onLoaded} = props
+  const {onLoaded, onItemClick} = props
   const [{data, fetching, error}, reexecuteQuery] = useQuery({
     query: ISSUE_LIST,
     variables: {name: props.name, owner: props.owner},
   })
 
   React.useEffect(() => {
-    if(!fetching){
+    if (!fetching) {
       onLoaded(data)
     }
   }, [fetching])
@@ -106,7 +109,7 @@ const IssueList = (props) => {
   const dataEl = data ? (
     <ul style={{padding: 0}}>
       {data.gitHub.repository.issues.edges.map(({node}) => (
-        <IssueListItem issue={node} key={node.id} />
+        <IssueListItem issue={node} key={node.id} onClick={onItemClick} />
       ))}
     </ul>
   ) : null

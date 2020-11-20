@@ -466,5 +466,250 @@ return (
 -    <IssueList />
 ```
 
-TODO: write up passing currentIssueNumber down to comments component
-TODO: get onclick working for issue list and wire up input component correctly.
+We need to tell our `<Comments/>` and `<Input/>` components what the `currentIssueNumber` is. Let's create another `React.useState` hook:
+
+```js
+function App() {
+  const {login, status} = React.useContext(AuthContext)
+  const [issueNumbers, setIssueNumbers] = React.useState([])
++ const [currentIssueNumber, setCurrentIssueNumber] = React.useState()
+```
+
+It doesn't need an initial value because we dont know what issue number will come back.
+
+First, lets protect our jsx from invalid renders. We need to make sure that `currentIssueNumber` is set before we render `<Comments/>` and `<Input/>`.
+
+```js
+return (
+  <div
+    style={{
+      display: 'flex',
+      flexDirector: 'column',
+      background: '#181d1f',
+      minHeight: '100vh',
+      fontSize: 'calc(10px + 2vmin)',
+      color: 'white',
+      padding: 10,
+    }}
+  >
+    <IssueList onLoaded={handleIssueListLoaded}/>
++   {currentIssueNumber && (
+      <div style={{marginLeft: 20, maxWidth: 600, minWidth: 400}}>
+        <Comments />
+        <Input />
+      </div>
++   )}
+  </div>
+)
+
+```
+
+Now, when the issue list loads, we have an issue number that we can set:
+
+```js
+const handleIssueListLoaded = (data) => {
+  const issues = data?.gitHub.repository.issues
+  const issueNumbers = issues.edges.map(({node: issue})=> issue.number)
+  setIssueNumbers(issueNumbers)
+  if(issueNumbers.length > 0){
+    setCurrentIssueNumber(issueNumbers[0])
+  }
+}
+```
+We make sure that there are more than 0 issues before setting the current one. We can pass the current issueNumber down into our components.
+
+```js
+return (
+  <div
+    style={{
+      display: 'flex',
+      flexDirector: 'column',
+      background: '#181d1f',
+      minHeight: '100vh',
+      fontSize: 'calc(10px + 2vmin)',
+      color: 'white',
+      padding: 10,
+    }}
+  >
+    <IssueList onLoaded={handleIssueListLoaded}/>
+    {currentIssueNumber && (
+      <div style={{marginLeft: 20, maxWidth: 600, minWidth: 400}}>
++        <Comments issueNumber={currentIssueNumber} />
+-        <Comments />
+         <Input />
+      </div>
+    )}
+  </div>
+)
+```
+
+
+Lets head over to `src/components/CommentsSubscription.js` to update our hook thats fetching our comments data.
+
+```js
++function CommentsSubscription({issueNumber}) {
+-function CommentsSubscription() {
+
+ const handleSubscription = (comments = [], commentEvent) => {
+    if (!commentEvent) {
+      return comments
+    }
+    return [...comments, commentEvent.github.issueCommentEvent.comment]
+  }
+
+  const [pauseCommentsHistory, setPauseCommentsHistory] = React.useState(false)
+
++ const commentsHistory = useCommentsHistory({pause: pauseCommentsHistory, issueNumber})
+- const commentsHistory = useCommentsHistory({pause: pauseCommentsHistory})
+```
+
+You can see that we are destructuring the `issueNumber` from the props and passing this variable to our `useCommentsHistory` hook. This is the hook that loads the existing comments for the chat. We have to modify it to make sure it's not hard coded anymore.
+
+```js
+const useCommentsHistory = (options) => {
++  const {pause = false, issueNumber} = options
+-  const {pause = false} = options
+   const [result] = useQuery({
+    query: COMMENTS_QUERY,
+    variables: {
+      repoOwner: 'theianjones',
+      repoName: 'egghead-graphql-subscriptions',
++     issueNumber,
+-     issueNumber: 2
+    },
+    pause,
+  })
+
+```
+
+Now when you load the page, the conversation should be rendering! Lets head back up to our `src/App.js` to update our `<Input />` component. Our input mutation need the `subjectId` which is not the issue number. This means that we need more than the currentIssueNumber and issueNumbers.
+
+Lets refactor our code to set the current issue:
+
+```js
+function App() {
+  const {login, status} = React.useContext(AuthContext)
++ const [issues, setIssues] = React.useState([])
+- const [issueNumbers, setIssueNumbers] = React.useState([])
++ const [currentIssue, setCurrentIssue] = React.useState()
+- const [currentIssueNumber, setCurrentIssueNumber] = React.useState()
+  if (!status || !status.github) {
+    return (
+      <div>
+        <h1>Log in to github</h1>
+        <p>In order to see your profile, you'll have to log in with Github.</p>
+        <button onClick={() => login('github')}>Log in with Github</button>
+      </div>
+    )
+  }
+
+  const handleIssueListLoaded = (data) => {
+-   const issues = data?.gitHub.repository.issues
+-   const issueNumbers = issues.edges.map(({node: issue}) => issue.number)
+-   if(issueNumbers.length > 0){
+-     setCurrentIssueNumber(issueNumbers[0])
+-    }
++    const issues = data?.gitHub.repository.issues.edges.map(e => e.node)
++    setIssues(issues)
++    setCurrentIssue(issues[0])
+  }
+```
+
+We need to keep track of the whole issue because our two components need different data off of each. This is a good thing to keep in mind when you are designing your state in your components. Lets update our view now:
+
+```js
+return (
+  <div
+    style={{
+      display: 'flex',
+      flexDirector: 'column',
+      background: '#181d1f',
+      minHeight: '100vh',
+      fontSize: 'calc(10px + 2vmin)',
+      color: 'white',
+      padding: 10,
+    }}
+  >
+    <IssueList onLoaded={handleIssueListLoaded}/>
+    {currentIssue && (
+      <div style={{marginLeft: 20, maxWidth: 600, minWidth: 400}}>
+        <Comments issueNumber={currentIssue.number} />
++       <Input subjectId={currentIssue.id} />
+-       <Input />
+      </div>
+    )}
+  </div>
+)
+```
+
+Now we can update our `Input` component:
+
+```js
+function NewCommentInput({subjectId}) {
+  const [mutationResult, executeMutation] = useMutation(NEW_COMMENT_MUTATION)
+  const handleSubmit = (body) => {
++   executeMutation({subjectId, body})
+-   executeMutation({subjectId: 'MDU6SXNzdWU2OTQ1MjE0ODM=', body})
+ }
+
+
+  return <Input onSubmit={handleSubmit} />
+}
+```
+
+And finally, we can add an `onClick` handler to update what current issue we are viewing! Inside of `src/App.js`:
+
+```js
+return (
+  <div
+    style={{
+      display: 'flex',
+      flexDirector: 'column',
+      background: '#181d1f',
+      minHeight: '100vh',
+      fontSize: 'calc(10px + 2vmin)',
+      color: 'white',
+      padding: 10,
+    }}
+  >
++   <IssueList onLoaded={handleIssueListLoaded} onClick={setCurrentIssue} />
+-   <IssueList onLoaded={handleIssueListLoaded} />
+    {currentIssue && (
+      <div style={{marginLeft: 20, maxWidth: 600, minWidth: 400}}>
+        <Comments issueNumber={currentIssue.number} />
+        <Input subjectId={currentIssue.id} />
+      </div>
+    )}
+  </div>
+)
+```
+
+When you test the UI out, you will notice that nothing is changing. Thats because we are pausing our urql query in `Comments`. We can force a render when the `currentIssue` changes by adding a `key` prop to each of the components:
+
+```js
+return (
+  <div
+    style={{
+      display: 'flex',
+      flexDirector: 'column',
+      background: '#181d1f',
+      minHeight: '100vh',
+      fontSize: 'calc(10px + 2vmin)',
+      color: 'white',
+      padding: 10,
+    }}
+  >
+    <IssueList onLoaded={handleIssueListLoaded} onItemClick={(i) => console.log('click') || setCurrentIssue(i)} />
+    {currentIssue && (
+      <div style={{marginLeft: 20, maxWidth: 600, minWidth: 400}}>
++       <Comments issueNumber={currentIssue.number} key={currentIssue.number} />
++       <Input subjectId={currentIssue.id} key={currentIssue.id} />
+-       <Comments issueNumber={currentIssue.number} />
+-       <Input subjectId={currentIssue.id} />
+      </div>
+    )}
+  </div>
+)
+```
+
+This adds the functionality for switching conversations. If you go over to github and create a new issue, when you reload, you'll see it show up!

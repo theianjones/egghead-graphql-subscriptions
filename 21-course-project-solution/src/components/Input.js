@@ -77,13 +77,12 @@ mutation NewCommentMutation($body:String!, $subjectId:String!) {
 }
 `
 
-function NewCommentInput() {
+function NewCommentInput({subjectId}) {
   const [mutationResult, executeMutation] = useMutation(NEW_COMMENT_MUTATION)
   const handleSubmit = (body) => {
-    executeMutation({subjectId: 'MDU6SXNzdWU2OTQ1MjE0ODM=', body})
+    executeMutation({subjectId, body})
   }
 
-  console.log({mutationResult})
 
   return <Input onSubmit={handleSubmit} />
 }

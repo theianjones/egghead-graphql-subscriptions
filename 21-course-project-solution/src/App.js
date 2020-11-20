@@ -8,8 +8,8 @@ import IssueList from './components/IssueList'
 
 function App() {
   const {login, status} = React.useContext(AuthContext)
-  const [issueNumbers, setIssueNumbers] = React.useState([])
-  const [currentIssueNumber, setCurrentIssueNumber] = React.useState()
+  const [issues, setIssues] = React.useState([])
+  const [currentIssue, setCurrentIssue] = React.useState()
   if (!status || !status.github) {
     return (
       <div>
@@ -21,13 +21,13 @@ function App() {
   }
 
   const handleIssueListLoaded = (data) => {
-    const issues = data?.gitHub.repository.issues
-    const issueNumbers = issues.edges.map(({node: issue})=> issue.number)
-    setIssueNumbers(issueNumbers)
-    if(issueNumbers.length > 1){
-      setCurrentIssueNumber(issueNumbers[0])
-    }
+    const issues = data?.gitHub.repository.issues.edges.map((e) => e.node)
+    setIssues(issues)
+    setCurrentIssue(issues[0])
   }
+
+  console.log(currentIssue)
+
   return (
     <div
       style={{
@@ -40,11 +40,11 @@ function App() {
         padding: 10,
       }}
     >
-      <IssueList onLoaded={handleIssueListLoaded}/>
-      {currentIssueNumber && (
+      <IssueList onLoaded={handleIssueListLoaded} onItemClick={(i) => console.log('click') || setCurrentIssue(i)} />
+      {currentIssue && (
         <div style={{marginLeft: 20, maxWidth: 600, minWidth: 400}}>
-          <Comments issueNumber={currentIssueNumber}/>
-          <Input issueNumber={currentIssueNumber}/>
+          <Comments issueNumber={currentIssue.number} key={currentIssue.number} />
+          <Input subjectId={currentIssue.id} key={currentIssue.id} />
         </div>
       )}
     </div>

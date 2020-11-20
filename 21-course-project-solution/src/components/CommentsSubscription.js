@@ -26,19 +26,16 @@ const COMMENTS_LIST_SUBSCRIPTION = `subscription CommentsListSubscription(
 }`
 
 function CommentsSubscription({issueNumber}) {
-  console.log({issueNumber})
   const handleSubscription = (comments = [], commentEvent) => {
     if (!commentEvent) {
       return comments
     }
     return [...comments, commentEvent.github.issueCommentEvent.comment]
   }
-
   const [pauseCommentsHistory, setPauseCommentsHistory] = React.useState(false)
 
   const commentsHistory = useCommentsHistory({pause: pauseCommentsHistory, issueNumber})
   const commentsHistoryLength = commentsHistory.length
-
   React.useEffect(() => {
     if (commentsHistoryLength !== 0) {
       setPauseCommentsHistory(true)
@@ -55,8 +52,6 @@ function CommentsSubscription({issueNumber}) {
     },
     handleSubscription,
   )
-
-  console.log({commentSubscriptionResult})
 
   const commentsWithHistory = [
     ...commentsHistory,
