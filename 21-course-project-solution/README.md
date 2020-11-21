@@ -2,7 +2,7 @@
 
 [React real-time messaging with graphql using urql and onegraph](https://egghead.io/playlists/react-real-time-messaging-with-graphql-using-urql-and-onegraph-be5a) is my first course on egghead. This blog post assumes that you've completed the course. We pick up at the end and implement the [course project](https://github.com/eggheadio/eggheadio-course-notes/tree/master/react-real-time-messaging-with-graph-ql-using-urql-and-one-graph/exercises).
 
-## Summary
+## Course Summary
 
 In the course, we learned how to use `urql`'s `useQuery` React hook to fetch data about the comments on a specific Github issue. We us OneGraph as a backend. OneGraph has provided has an auth package that we build into our app with React Context.
 
