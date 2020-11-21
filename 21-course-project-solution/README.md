@@ -1,14 +1,14 @@
 # Course Project: Select Between Multiple Conversations
 
-## Summary
+[React real-time messaging with graphql using urql and onegraph](https://egghead.io/playlists/react-real-time-messaging-with-graphql-using-urql-and-onegraph-be5a) is my first course on egghead. This blog post assumes that you've completed the course. We pick up at the end and implement the [course project](https://github.com/eggheadio/eggheadio-course-notes/tree/master/react-real-time-messaging-with-graph-ql-using-urql-and-one-graph/exercises).
 
-[React real-time messaging with graphql using urql and onegraph course on egghead](https://egghead.io/playlists/react-real-time-messaging-with-graphql-using-urql-and-onegraph-be5a) is my first course on egghead. This blog post assumes that you've completed the course. We pick up at the end of the course and implement the [course project](https://github.com/eggheadio/eggheadio-course-notes/tree/master/react-real-time-messaging-with-graph-ql-using-urql-and-one-graph/exercises).
+## Summary
 
 In the course, we learned how to use `urql`'s `useQuery` React hook to fetch data about the comments on a specific Github issue. We us OneGraph as a backend. OneGraph has provided has an auth package that we build into our app with React Context.
 
 We need a way for our chat app to send messages. GraphQL mutations handle this job for us. Through mutations, we can create comments on a specific github issue.
 
-Finally, we implement a subscription client in `urql`. This allows us to see new messages come in without refreshing the browser!
+Finally, we implement a subscription client in `urql`. This enables the `useSubscription hook` and allows us to see new messages without refreshing the browser!
 
 We are using Github as our backend to store our messages. OneGraph is the GraphQL api we use to talk to Github with.
 
@@ -18,11 +18,35 @@ Heres what the finished product looks like:
 
 In this blog post, we are going to implement the feature of switching between chat rooms.
 
+## Set up the code
+
+We will be working from code in [this Github repository](https://github.com/theianjones/egghead-graphql-subscriptions). You can clone the project with this:
+
+```sh
+git clone git@github.com:theianjones/egghead-graphql-subscriptions.git
+# or
+git clone https://github.com/theianjones/egghead-graphql-subscriptions.git
+```
+
+When the repository is clones, you'll want to work out of the `20-commentHistory` directory.
+
+```sh
+cd 20-commentHistory
+```
+
+Now you'll need to install package dependencies:
+
+```sh
+yarn
+# or
+npm install
+```
+
 ## Build the Issue Query in the graphiql editor
 
-First, we need to navigate to [OneGraph](https://onegraph.com). Log in. Then you can select an existing app or create a new one.
+First, we need to navigate to [OneGraph](https://onegraph.com). Log in. Now select an existing app or create a new one.
 
-Now that we're logged in, head over to the data explorer tab. This is where OneGraph's GraphiQL editor lives. We're going to build out our query to get all of the issues associated with the [egghead-graphql-subscriptions github repo](https://github.com/theianjones/egghead-graphql-subscriptions).
+Head over to the data explorer tab. This is where OneGraph's GraphiQL editor lives. We're going to build out our query to get all of the issues associated with the [egghead-graphql-subscriptions github repo](https://github.com/theianjones/egghead-graphql-subscriptions).
 
 Heres what our GraphQL query will look like:
 
@@ -56,26 +80,23 @@ query IssueList(
     }
   }
 }
-
 ```
 
 Pro tip: when you hover over the `$name` and `$owner` you can have the editor paramiterize the query for you:
 
-[image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928546/blog/Screen_20Recording_202020-11-19_20at_2005.31_20PM_b0aluc.gif)
+![image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928546/blog/Screen_20Recording_202020-11-19_20at_2005.31_20PM_b0aluc.gif)
 
 Before you run the query, you are going to have to authorize your editor with GitHub. To do this, click the `Authentication` drop down and select "Log in with GitHub"
 
-[image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928568/blog/Image_202020-11-19_20at_205.33.27_20PM_yyh8bg.png)
+![image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928568/blog/Image_202020-11-19_20at_205.33.27_20PM_yyh8bg.png)
 
 When you run the query, you should get some data back!
 
-Now that we have a query, it's time to generate our code. OneGraph has a code snippet generation tool that will create the react and urql code for us.
+Now that we have a query, it's time to generate our code. OneGraph has a code snippet generation tool that will create the react and urql code for us 🤯 It will create a whole app for us with auth and the client set up all baked in. We won't need this though because we set all of that code up in the course.
 
-Click "Code Exporter". Now in the 2 drop downs, select `JavaScript` in the first and `react-urql` in the second. You'll notice there's quite a few options to choose from.
+Click "Code Exporter". Now, in the two drop downs, select `JavaScript` in the first and `react-urql` in the second. You'll notice there's quite a few options to choose from so if you want to quickly try out Apollo or even ReasonML with GraphQL, you can!
 
-[image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928590/blog/Image_202020-11-19_20at_205.36.57_20PM_gy2wyq.png)
-
-This snippet generated a full react app for us. With auth and subscriptions built into urql.
+![image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928590/blog/Image_202020-11-19_20at_205.36.57_20PM_gy2wyq.png)
 
 ## Integrate OneGraph generated snippet
 
@@ -87,7 +108,7 @@ touch src/components/IssueList.js
 
 Paste the snippet we generated in the last step. You'll notice theres urql client code that we already have present in `src/index.js` so we can go ahead and delete all of that code.
 
-Heres what we are left with:
+Heres what we have left:
 
 ```js
 import React from "react";
