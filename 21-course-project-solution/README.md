@@ -1,6 +1,6 @@
 # Refactor a React application using urql and OneGraph
 
-I'm going to show you how to integrate a React component that uses GraphQL to fetch data from Github. We are working from an existing application so I go through the process of refactoring the code to handle new functionality.
+I'm going to show you how to integrate a React component that uses GraphQL to fetch data from Github. We are working from an existing application so we will go through the process of refactoring the code to handle new functionality.
 
 Specifically, we are working on a chat application that I built in my egghead course _[React real-time messaging with graphql using urql and onegraph](https://egghead.io/playlists/react-real-time-messaging-with-graphql-using-urql-and-onegraph-be5a)_. At the end of the course, we have a single chat feed that will update in real-time when new messages come in. Heres what the app looks like:
 
