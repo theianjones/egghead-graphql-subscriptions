@@ -1,10 +1,20 @@
 # Course Project: Select Between Multiple Conversations
 
-So we've just finished [React real-time messaging with graphql using urql and onegraph course on egghead](https://egghead.io/playlists/react-real-time-messaging-with-graphql-using-urql-and-onegraph-be5a). The [course project](https://github.com/eggheadio/eggheadio-course-notes/tree/master/react-real-time-messaging-with-graph-ql-using-urql-and-one-graph/exercises) has us building out a message selector.
+## Summary
 
-So if you haven't taken the course, the app we build was a real time messaging app backed by Github issues, where the comments are the messages being displayed in real time. Heres what it looked like:
+[React real-time messaging with graphql using urql and onegraph course on egghead](https://egghead.io/playlists/react-real-time-messaging-with-graphql-using-urql-and-onegraph-be5a) is my first course on egghead. This blog post assumes that you've completed the course. We pick up at the end of the course and implement the [course project](https://github.com/eggheadio/eggheadio-course-notes/tree/master/react-real-time-messaging-with-graph-ql-using-urql-and-one-graph/exercises).
 
-[image link](https://share.getcloudapp.com/7KubBe8q)
+In the course, we learned how to use `urql`'s `useQuery` React hook to fetch data about the comments on a specific Github issue. We us OneGraph as a backend. OneGraph has provided has an auth package that we build into our app with React Context.
+
+We need a way for our chat app to send messages. GraphQL mutations handle this job for us. Through mutations, we can create comments on a specific github issue.
+
+Finally, we implement a subscription client in `urql`. This allows us to see new messages come in without refreshing the browser!
+
+We are using Github as our backend to store our messages. OneGraph is the GraphQL api we use to talk to Github with.
+
+Heres what the finished product looks like:
+
+![image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928488/blog/Image_202020-11-19_20at_205.18.57_20PM_hrgk11.png)
 
 In this blog post, we are going to implement the feature of switching between chat rooms.
 
@@ -51,11 +61,11 @@ query IssueList(
 
 Pro tip: when you hover over the `$name` and `$owner` you can have the editor paramiterize the query for you:
 
-[image link](https://share.getcloudapp.com/wbuKZolk)
+[image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928546/blog/Screen_20Recording_202020-11-19_20at_2005.31_20PM_b0aluc.gif)
 
 Before you run the query, you are going to have to authorize your editor with GitHub. To do this, click the `Authentication` drop down and select "Log in with GitHub"
 
-[image link](https://share.getcloudapp.com/P8um0xJk)
+[image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928568/blog/Image_202020-11-19_20at_205.33.27_20PM_yyh8bg.png)
 
 When you run the query, you should get some data back!
 
@@ -63,7 +73,7 @@ Now that we have a query, it's time to generate our code. OneGraph has a code sn
 
 Click "Code Exporter". Now in the 2 drop downs, select `JavaScript` in the first and `react-urql` in the second. You'll notice there's quite a few options to choose from.
 
-[image link](https://share.getcloudapp.com/E0u4226B)
+[image link](https://res.cloudinary.com/dzsq0psas/image/upload/v1605928590/blog/Image_202020-11-19_20at_205.36.57_20PM_gy2wyq.png)
 
 This snippet generated a full react app for us. With auth and subscriptions built into urql.
 
